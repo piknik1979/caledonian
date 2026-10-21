@@ -21,20 +21,19 @@
     header { background-color: var(--primary); color: white; padding: 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .header-container { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo-area h1 { font-size: 1.1rem; font-weight: 700; }
-    .coach-badge { background: rgba(255, 255, 255, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+    .coach-badge { background: rgba(255, 255, 255, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; display: none; }
     main { max-width: 600px; margin: 16px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
     
     .motto-banner { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 14px 16px; border-radius: 12px; font-style: italic; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; text-align: center; }
     .alert-box { background: #fef3c7; border-left: 4px solid var(--accent); color: #92400e; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: none; }
     
-    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); display: none; }
     .card-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
     
     .map-button { display: none; margin-top: 12px; background: var(--map-btn); color: white; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-align: center; }
     
     .photo-container { width: 100%; border-radius: 8px; overflow: hidden; background: #e2e8f0; max-height: 400px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
     .photo-container img { width: 100%; height: auto; object-fit: contain; display: block; }
-    .no-photo { padding: 30px 20px; color: var(--text-muted); text-align: center; font-size: 0.9rem; }
     
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .btn-action { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; text-align: center; border: none; }
@@ -77,15 +76,14 @@
     </div>
 
     <!-- Quick Info & Location -->
-    <div class="card">
+    <div class="card" id="card-mission">
       <div class="card-title">🧭 Today's Mission & Location</div>
-      <p><strong>Destination:</strong> <span id="display-destination">-</span></p>
-      <p><strong>Departure:</strong> <span id="display-departure">-</span></p>
+      <p id="row-destination" style="display: none;"><strong>Destination:</strong> <span id="display-destination">-</span></p>
+      <p id="row-departure" style="display: none;"><strong>Departure:</strong> <span id="display-departure">-</span></p>
       <p id="pickup-row" style="display: none; margin-top: 4px;">
         <strong>Pick-up Point:</strong> <span id="display-pickup">-</span>
       </p>
       
-      <!-- Przycisk do Map Google -->
       <a href="#" id="btn-google-maps" target="_blank" class="map-button">
         📍 Open Pick-up Point in Google Maps 🧭
       </a>
@@ -94,30 +92,29 @@
     </div>
 
     <!-- Photo -->
-    <div class="card">
+    <div class="card" id="card-photo">
       <div class="card-title">📸 Live Itinerary & Schedule</div>
       <div class="photo-container" onclick="openLightbox()">
         <img id="display-photo" src="" alt="Itinerary Photo" style="display: none;">
-        <div id="no-photo-msg" class="no-photo">No schedule photo uploaded by captain yet! 📸</div>
       </div>
       <p style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Tap image to zoom in 🔍</p>
     </div>
 
     <!-- Links -->
-    <div class="card">
+    <div class="card" id="card-links">
       <div class="card-title">🔗 Useful Stuff & Guides</div>
       <ul class="link-list" id="display-links"></ul>
     </div>
 
     <!-- Help -->
-    <div class="card">
+    <div class="card" id="card-help">
       <div class="card-title">📞 SOS & Assistance</div>
-      <div class="grid-2">
-        <a href="#" id="btn-call-support" class="btn-action btn-primary">📞 Customer Care</a>
-        <a href="#" id="btn-call-emergency" class="btn-action btn-danger">🚨 24/7 Emergency</a>
+      <div class="grid-2" id="grid-help-primary">
+        <a href="#" id="btn-call-support" class="btn-action btn-primary" style="display: none;">📞 Customer Care</a>
+        <a href="#" id="btn-call-emergency" class="btn-action btn-danger" style="display: none;">🚨 24/7 Emergency</a>
       </div>
-      <div style="margin-top: 10px;">
-        <a href="#" id="btn-call-hotel" class="btn-action btn-secondary" style="width: 100%;">🏨 Hotel Reception</a>
+      <div style="margin-top: 10px;" id="div-call-hotel">
+        <a href="#" id="btn-call-hotel" class="btn-action btn-secondary" style="width: 100%; display: none;">🏨 Hotel Reception</a>
       </div>
     </div>
   </main>
@@ -143,9 +140,16 @@
       if (error) { console.error('Fetch error:', error); return; }
 
       if (data) {
-        document.getElementById("display-coach").textContent = data.coach || "BUS";
-        document.getElementById("display-driver").textContent = "Captain: " + (data.driver || "-");
-        
+        // Coach & Driver
+        const coachBadge = document.getElementById("display-coach");
+        if (data.coach && data.coach.trim() !== "") {
+          coachBadge.textContent = data.coach;
+          coachBadge.style.display = "inline-block";
+        } else {
+          coachBadge.style.display = "none";
+        }
+        document.getElementById("display-driver").textContent = data.driver && data.driver.trim() !== "" ? "Captain: " + data.driver : "Captain: -";
+
         // Motto
         const mottoBanner = document.getElementById("motto-banner");
         if (data.motto && data.motto.trim() !== "") {
@@ -164,55 +168,101 @@
           alertBox.style.display = "none";
         }
 
-        document.getElementById("display-destination").textContent = data.destination || "-";
-        document.getElementById("display-departure").textContent = data.departure || "-";
-        
-        // Pick-up location & Google Maps Button
+        // Mission Card
+        let hasMission = false;
+        const cardMission = document.getElementById("card-mission");
+
+        const rowDest = document.getElementById("row-destination");
+        if (data.destination && data.destination.trim() !== "") {
+          document.getElementById("display-destination").textContent = data.destination;
+          rowDest.style.display = "block";
+          hasMission = true;
+        } else { rowDest.style.display = "none"; }
+
+        const rowDep = document.getElementById("row-departure");
+        if (data.departure && data.departure.trim() !== "") {
+          document.getElementById("display-departure").textContent = data.departure;
+          rowDep.style.display = "block";
+          hasMission = true;
+        } else { rowDep.style.display = "none"; }
+
         const pickupRow = document.getElementById("pickup-row");
-        const mapBtn = document.getElementById("btn-google-maps");
-        
         if (data.pickup_location && data.pickup_location.trim() !== "") {
           document.getElementById("display-pickup").textContent = data.pickup_location;
           pickupRow.style.display = "block";
-        } else {
-          pickupRow.style.display = "none";
-        }
+          hasMission = true;
+        } else { pickupRow.style.display = "none"; }
 
+        const mapBtn = document.getElementById("btn-google-maps");
         if (data.pickup_map_url && data.pickup_map_url.trim() !== "") {
           mapBtn.href = data.pickup_map_url;
           mapBtn.style.display = "block";
-        } else {
-          mapBtn.style.display = "none";
-        }
+          hasMission = true;
+        } else { mapBtn.style.display = "none"; }
 
-        document.getElementById("display-notes").textContent = data.notes || "";
+        const notesDiv = document.getElementById("display-notes");
+        if (data.notes && data.notes.trim() !== "") {
+          notesDiv.textContent = data.notes;
+          notesDiv.style.display = "block";
+          hasMission = true;
+        } else { notesDiv.style.display = "none"; }
 
+        cardMission.style.display = hasMission ? "block" : "none";
+
+        // Photo Card
+        const cardPhoto = document.getElementById("card-photo");
         const photoImg = document.getElementById("display-photo");
-        const noPhotoMsg = document.getElementById("no-photo-msg");
-        if (data.photo) {
+        if (data.photo && data.photo.trim() !== "") {
           photoImg.src = data.photo;
           photoImg.style.display = "block";
-          noPhotoMsg.style.display = "none";
+          cardPhoto.style.display = "block";
         } else {
           photoImg.style.display = "none";
-          noPhotoMsg.style.display = "block";
+          cardPhoto.style.display = "none";
         }
 
-        document.getElementById("btn-call-support").href = "tel:" + (data.support_phone || "");
-        document.getElementById("btn-call-emergency").href = "tel:" + (data.emergency_phone || "");
-        document.getElementById("btn-call-hotel").href = "tel:" + (data.hotel_phone || "");
-
+        // Links Card
         const linksContainer = document.getElementById("display-links");
+        const cardLinks = document.getElementById("card-links");
         linksContainer.innerHTML = "";
+        let linkCount = 0;
+
         if (data.link1_title && data.link1_url) {
           linksContainer.innerHTML += `<li class="link-item"><a href="${data.link1_url}" target="_blank">${data.link1_title} <span>➔</span></a></li>`;
+          linkCount++;
         }
         if (data.link2_title && data.link2_url) {
           linksContainer.innerHTML += `<li class="link-item"><a href="${data.link2_url}" target="_blank">${data.link2_title} <span>➔</span></a></li>`;
+          linkCount++;
         }
-        if (!data.link1_title && !data.link2_title) {
-          linksContainer.innerHTML = `<li style="font-size: 0.85rem; color: var(--text-muted);">No extra links right now. Relax! ☕</li>`;
-        }
+        cardLinks.style.display = linkCount > 0 ? "block" : "none";
+
+        // Help Card
+        const btnSupport = document.getElementById("btn-call-support");
+        const btnEmergency = document.getElementById("btn-call-emergency");
+        const btnHotel = document.getElementById("btn-call-hotel");
+        const cardHelp = document.getElementById("card-help");
+        let helpCount = 0;
+
+        if (data.support_phone && data.support_phone.trim() !== "") {
+          btnSupport.href = "tel:" + data.support_phone;
+          btnSupport.style.display = "flex";
+          helpCount++;
+        } else { btnSupport.style.display = "none"; }
+
+        if (data.emergency_phone && data.emergency_phone.trim() !== "") {
+          btnEmergency.href = "tel:" + data.emergency_phone;
+          btnEmergency.style.display = "flex";
+          helpCount++;
+        } else { btnEmergency.style.display = "none"; }
+
+        if (data.hotel_phone && data.hotel_phone.trim() !== "") {
+          btnHotel.href = "tel:" + data.hotel_phone;
+          btnHotel.style.display = "flex";
+          helpCount++;
+        } else { btnHotel.style.display = "none"; }
+
+        cardHelp.style.display = helpCount > 0 ? "block" : "none";
       }
     }
 

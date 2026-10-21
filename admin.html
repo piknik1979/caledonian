@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Driver Admin Dashboard - Fun Edition</title>
+  <title>Driver Admin Dashboard</title>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -12,6 +12,7 @@
       --text: #0f172a;
       --border: #e2e8f0;
       --success: #10b981;
+      --warning: #f59e0b;
       --danger: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -19,10 +20,14 @@
     .container { max-width: 500px; margin: 0 auto; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     h2 { color: var(--primary); margin-bottom: 16px; font-size: 1.2rem; }
     .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    label { font-size: 0.85rem; font-weight: 600; }
+    .checkbox-label { font-size: 0.75rem; color: #64748b; display: flex; align-items: center; gap: 4px; cursor: pointer; }
     input, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
-    .btn { display: block; width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; font-size: 1rem; margin-top: 20px; }
+    .btn { display: block; width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; font-size: 1rem; margin-top: 15px; }
     .btn-success { background: var(--success); }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-danger { background: var(--danger); }
     .msg { background: #d1fae5; color: #065f46; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-weight: 600; text-align: center; display: none; }
     .error-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-weight: 600; text-align: center; display: none; }
     hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
@@ -34,26 +39,38 @@
 
   <div class="container">
     <h2>😎 Captain's Control Panel</h2>
-    <div class="msg" id="save-msg">Vibe & Map updated successfully! 🚀</div>
+    <div class="msg" id="save-msg">Updated successfully! 🚀</div>
     <div class="error-msg" id="error-msg">Error! Check console.</div>
 
     <div class="form-group">
-      <label>Driver Name</label>
+      <div class="form-row">
+        <label>Driver Name</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-driver"> Save as Default</label>
+      </div>
       <input type="text" id="edit-driver" placeholder="e.g. John (The Legend)">
     </div>
 
     <div class="form-group">
-      <label>Coach Plate / ID</label>
+      <div class="form-row">
+        <label>Coach Plate / ID</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-coach"> Save as Default</label>
+      </div>
       <input type="text" id="edit-coach" placeholder="BUS-01">
     </div>
 
     <div class="form-group">
-      <label>📢 Captain's Motto / Vibe of the Day</label>
+      <div class="form-row">
+        <label>📢 Captain's Motto / Vibe of the Day</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-motto"> Save as Default</label>
+      </div>
       <input type="text" id="edit-motto" placeholder="e.g. Keep calm and trust the driver!">
     </div>
 
     <div class="form-group">
-      <label>🚨 Urgent Announcement Bar (Top Alert)</label>
+      <div class="form-row">
+        <label>🚨 Urgent Announcement Bar (Top Alert)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-alert"> Save as Default</label>
+      </div>
       <input type="text" id="edit-alert" placeholder="Leave empty to hide">
     </div>
 
@@ -61,64 +78,99 @@
     <h3>🎯 Today's Mission & Location</h3>
 
     <div class="form-group" style="margin-top: 10px;">
-      <label>Today's Destination</label>
+      <div class="form-row">
+        <label>Today's Destination</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-destination"> Save as Default</label>
+      </div>
       <input type="text" id="edit-destination" placeholder="London & Windsor">
     </div>
 
     <div class="form-group">
-      <label>⏰ Departure Time (Don't be late!)</label>
+      <div class="form-row">
+        <label>⏰ Departure Time (Don't be late!)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-departure"> Save as Default</label>
+      </div>
       <input type="text" id="edit-departure" placeholder="09:00 AM sharp">
     </div>
 
     <div class="form-group">
-      <label>📍 Pick-up / Meeting Point Name (Optional)</label>
+      <div class="form-row">
+        <label>📍 Pick-up / Meeting Point Name (Optional)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-pickup"> Save as Default</label>
+      </div>
       <input type="text" id="edit-pickup" placeholder="e.g. Windsor Castle Coach Park Bay 4">
     </div>
 
     <div class="form-group">
-      <label>🗺️ Google Maps Link for Pick-up Point (Optional)</label>
+      <div class="form-row">
+        <label>🗺️ Google Maps Link for Pick-up Point (Optional)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-pickup-map"> Save as Default</label>
+      </div>
       <input type="url" id="edit-pickup-map" placeholder="https://maps.app.goo.gl/...">
     </div>
 
     <div class="form-group">
-      <label>☕ Breakfast / Notes & Warnings</label>
+      <div class="form-row">
+        <label>☕ Breakfast / Notes & Warnings</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-notes"> Save as Default</label>
+      </div>
       <textarea id="edit-notes" rows="2" placeholder="Breakfast at 7:30 AM. Watch out for rain!"></textarea>
     </div>
 
     <div class="form-group">
-      <label>📸 Itinerary Photo (Snap the schedule)</label>
+      <div class="form-row">
+        <label>📸 Itinerary Photo (Snap the schedule)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-photo"> Save as Default</label>
+      </div>
       <input type="file" id="edit-photo-input" accept="image/*">
     </div>
 
     <hr>
     <h3>📞 Useful Numbers</h3>
     <div class="form-group" style="margin-top: 10px;">
-      <label>Customer Support Tel</label>
+      <div class="form-row">
+        <label>Customer Support Tel</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-support"> Save as Default</label>
+      </div>
       <input type="tel" id="edit-support">
     </div>
     <div class="form-group">
-      <label>24/7 Emergency Tel</label>
+      <div class="form-row">
+        <label>24/7 Emergency Tel</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-emergency"> Save as Default</label>
+      </div>
       <input type="tel" id="edit-emergency">
     </div>
     <div class="form-group">
-      <label>Hotel Reception Tel</label>
+      <div class="form-row">
+        <label>Hotel Reception Tel</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-hotel"> Save as Default</label>
+      </div>
       <input type="tel" id="edit-hotel">
     </div>
 
     <hr>
     <h3>🔗 Quick Links</h3>
     <div class="form-group" style="margin-top: 10px;">
-      <label>Link 1 (Title & URL)</label>
+      <div class="form-row">
+        <label>Link 1 (Title & URL)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-link1"> Save as Default</label>
+      </div>
       <input type="text" id="edit-link1-title" placeholder="Pub Recommendations" style="margin-bottom: 5px;">
       <input type="url" id="edit-link1-url" placeholder="https://...">
     </div>
     <div class="form-group">
-      <label>Link 2 (Title & URL)</label>
+      <div class="form-row">
+        <label>Link 2 (Title & URL)</label>
+        <label class="checkbox-label"><input type="checkbox" class="field-check" id="chk-link2"> Save as Default</label>
+      </div>
       <input type="text" id="edit-link2-title" placeholder="City Map Guide" style="margin-bottom: 5px;">
       <input type="url" id="edit-link2-url" placeholder="https://...">
     </div>
 
     <button class="btn btn-success" onclick="saveDataToCloud()">Save & Broadcast Vibe 🚀</button>
+    <button class="btn btn-warning" onclick="resetToDefaults()">⚡ Reset to Default Values</button>
+    <button class="btn btn-danger" onclick="resetAllData()">🧹 Clear Everything (New Day)</button>
   </div>
 
   <script>
@@ -159,6 +211,29 @@
       const photoInput = document.getElementById("edit-photo-input");
 
       const performUpsert = async (photoData) => {
+        const saveDefaultIfChecked = (chkId, fieldId) => {
+          if (document.getElementById(chkId).checked) {
+            localStorage.setItem("def_" + fieldId, document.getElementById(fieldId).value);
+          }
+        };
+
+        saveDefaultIfChecked("chk-driver", "edit-driver");
+        saveDefaultIfChecked("chk-coach", "edit-coach");
+        saveDefaultIfChecked("chk-motto", "edit-motto");
+        saveDefaultIfChecked("chk-alert", "edit-alert");
+        saveDefaultIfChecked("chk-destination", "edit-destination");
+        saveDefaultIfChecked("chk-departure", "edit-departure");
+        saveDefaultIfChecked("chk-pickup", "edit-pickup");
+        saveDefaultIfChecked("chk-pickup-map", "edit-pickup-map");
+        saveDefaultIfChecked("chk-notes", "edit-notes");
+        saveDefaultIfChecked("chk-support", "edit-support");
+        saveDefaultIfChecked("chk-emergency", "edit-emergency");
+        saveDefaultIfChecked("chk-hotel", "edit-hotel");
+        saveDefaultIfChecked("chk-link1", "edit-link1-title");
+        saveDefaultIfChecked("chk-link1", "edit-link1-url");
+        saveDefaultIfChecked("chk-link2", "edit-link2-title");
+        saveDefaultIfChecked("chk-link2", "edit-link2-url");
+
         const payload = {
           id: 1,
           driver: document.getElementById("edit-driver").value,
@@ -190,6 +265,7 @@
           setTimeout(() => { errBox.style.display = "none"; }, 5000);
         } else {
           const msg = document.getElementById("save-msg");
+          msg.textContent = "Updated & Saved Defaults! 🚀";
           msg.style.display = "block";
           setTimeout(() => { msg.style.display = "none"; }, 3000);
         }
@@ -201,6 +277,62 @@
         reader.readAsDataURL(photoInput.files[0]);
       } else {
         performUpsert(currentPhotoBase64);
+      }
+    }
+
+    function resetToDefaults() {
+      // Przywraca do pól zapisane wcześniej wartości domyślne (lub czyści, jeśli nic nie zapisano)
+      const resetDef = (fieldId) => {
+        const savedVal = localStorage.getItem("def_" + fieldId);
+        document.getElementById(fieldId).value = savedVal !== null ? savedVal : "";
+      };
+
+      resetDef("edit-driver");
+      resetDef("edit-coach");
+      resetDef("edit-motto");
+      resetDef("edit-alert");
+      resetDef("edit-destination");
+      resetDef("edit-departure");
+      resetDef("edit-pickup");
+      resetDef("edit-pickup-map");
+      resetDef("edit-notes");
+      resetDef("edit-support");
+      resetDef("edit-emergency");
+      resetDef("edit-hotel");
+      resetDef("edit-link1-title");
+      resetDef("edit-link1-url");
+      resetDef("edit-link2-title");
+      resetDef("edit-link2-url");
+
+      const msg = document.getElementById("save-msg");
+      msg.textContent = "Reset to default values loaded! Click save. ⚡";
+      msg.style.display = "block";
+      setTimeout(() => { msg.style.display = "none"; }, 4000);
+    }
+
+    async function resetAllData() {
+      if (!confirm("Are you sure you want to clear all data for a new day?")) return;
+
+      const emptyPayload = {
+        id: 1, driver: "", coach: "", motto: "", alert: "", destination: "", departure: "",
+        pickup_location: "", pickup_map_url: "", notes: "", photo: "",
+        support_phone: "", emergency_phone: "", hotel_phone: "",
+        link1_title: "", link1_url: "", link2_title: "", link2_url: ""
+      };
+
+      const { error } = await client.from('tour_settings').upsert(emptyPayload);
+
+      if (error) {
+        alert("Error resetting data: " + error.message);
+      } else {
+        currentPhotoBase64 = "";
+        document.getElementById("edit-photo-input").value = "";
+        document.querySelectorAll(".field-check").forEach(chk => chk.checked = false);
+        loadAdminData();
+        const msg = document.getElementById("save-msg");
+        msg.textContent = "All data cleared for the new day! 🧹";
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 3000);
       }
     }
 
