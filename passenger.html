@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Tour Passenger Portal</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --accent: #d97706;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --map-btn: #2563eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); line-height: 1.5; padding-bottom: 40px; }
+    header { background-color: var(--primary); color: white; padding: 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .header-container { max-width: 600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .logo-area h1 { font-size: 1.1rem; font-weight: 700; }
+    .coach-badge { background: rgba(255, 255, 255, 0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+    main { max-width: 600px; margin: 16px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+    
+    .motto-banner { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 14px 16px; border-radius: 12px; font-style: italic; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none; text-align: center; }
+    .alert-box { background: #fef3c7; border-left: 4px solid var(--accent); color: #92400e; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: none; }
+    
+    .card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+    
+    .map-button { display: none; margin-top: 12px; background: var(--map-btn); color: white; text-decoration: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-align: center; }
+    
+    .photo-container { width: 100%; border-radius: 8px; overflow: hidden; background: #e2e8f0; max-height: 400px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    .photo-container img { width: 100%; height: auto; object-fit: contain; display: block; }
+    .no-photo { padding: 30px 20px; color: var(--text-muted); text-align: center; font-size: 0.9rem; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-action { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; text-align: center; border: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-danger { background: var(--danger); color: white; }
+    
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .link-item a { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f1f5f9; border-radius: 8px; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 300; justify-content: center; align-items: center; padding: 20px; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; object-fit: contain; }
+    footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 24px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="logo-area">
+        <h1>🚌 Coach Portal</h1>
+        <div style="font-size: 0.8rem; opacity: 0.9;" id="display-driver">Captain: -</div>
+      </div>
+      <span class="coach-badge" id="display-coach">BUS</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Motto -->
+    <div class="motto-banner" id="motto-banner">
+      ✨ "<span id="display-motto"></span>"
+    </div>
+
+    <!-- Alert -->
+    <div class="alert-box" id="alert-box">
+      📢 <span id="display-alert"></span>
+    </div>
+
+    <!-- Quick Info & Location -->
+    <div class="card">
+      <div class="card-title">🧭 Today's Mission & Location</div>
+      <p><strong>Destination:</strong> <span id="display-destination">-</span></p>
+      <p><strong>Departure:</strong> <span id="display-departure">-</span></p>
+      <p id="pickup-row" style="display: none; margin-top: 4px;">
+        <strong>Pick-up Point:</strong> <span id="display-pickup">-</span>
+      </p>
+      
+      <!-- Przycisk do Map Google -->
+      <a href="#" id="btn-google-maps" target="_blank" class="map-button">
+        📍 Open Pick-up Point in Google Maps 🧭
+      </a>
+
+      <div style="margin-top: 10px; font-size: 0.9rem; color: #475569;" id="display-notes"></div>
+    </div>
+
+    <!-- Photo -->
+    <div class="card">
+      <div class="card-title">📸 Live Itinerary & Schedule</div>
+      <div class="photo-container" onclick="openLightbox()">
+        <img id="display-photo" src="" alt="Itinerary Photo" style="display: none;">
+        <div id="no-photo-msg" class="no-photo">No schedule photo uploaded by captain yet! 📸</div>
+      </div>
+      <p style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Tap image to zoom in 🔍</p>
+    </div>
+
+    <!-- Links -->
+    <div class="card">
+      <div class="card-title">🔗 Useful Stuff & Guides</div>
+      <ul class="link-list" id="display-links"></ul>
+    </div>
+
+    <!-- Help -->
+    <div class="card">
+      <div class="card-title">📞 SOS & Assistance</div>
+      <div class="grid-2">
+        <a href="#" id="btn-call-support" class="btn-action btn-primary">📞 Customer Care</a>
+        <a href="#" id="btn-call-emergency" class="btn-action btn-danger">🚨 24/7 Emergency</a>
+      </div>
+      <div style="margin-top: 10px;">
+        <a href="#" id="btn-call-hotel" class="btn-action btn-secondary" style="width: 100%;">🏨 Hotel Reception</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Have a wonderful journey! 🇬🇧☕</p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Enlarged">
+  </div>
+
+  <script>
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function fetchPassengerData() {
+      const { data, error } = await client
+        .from('tour_settings')
+        .select('*')
+        .eq('id', 1)
+        .maybeSingle();
+
+      if (error) { console.error('Fetch error:', error); return; }
+
+      if (data) {
+        document.getElementById("display-coach").textContent = data.coach || "BUS";
+        document.getElementById("display-driver").textContent = "Captain: " + (data.driver || "-");
+        
+        // Motto
+        const mottoBanner = document.getElementById("motto-banner");
+        if (data.motto && data.motto.trim() !== "") {
+          document.getElementById("display-motto").textContent = data.motto;
+          mottoBanner.style.display = "block";
+        } else {
+          mottoBanner.style.display = "none";
+        }
+
+        // Alert
+        const alertBox = document.getElementById("alert-box");
+        if (data.alert && data.alert.trim() !== "") {
+          document.getElementById("display-alert").textContent = data.alert;
+          alertBox.style.display = "block";
+        } else {
+          alertBox.style.display = "none";
+        }
+
+        document.getElementById("display-destination").textContent = data.destination || "-";
+        document.getElementById("display-departure").textContent = data.departure || "-";
+        
+        // Pick-up location & Google Maps Button
+        const pickupRow = document.getElementById("pickup-row");
+        const mapBtn = document.getElementById("btn-google-maps");
+        
+        if (data.pickup_location && data.pickup_location.trim() !== "") {
+          document.getElementById("display-pickup").textContent = data.pickup_location;
+          pickupRow.style.display = "block";
+        } else {
+          pickupRow.style.display = "none";
+        }
+
+        if (data.pickup_map_url && data.pickup_map_url.trim() !== "") {
+          mapBtn.href = data.pickup_map_url;
+          mapBtn.style.display = "block";
+        } else {
+          mapBtn.style.display = "none";
+        }
+
+        document.getElementById("display-notes").textContent = data.notes || "";
+
+        const photoImg = document.getElementById("display-photo");
+        const noPhotoMsg = document.getElementById("no-photo-msg");
+        if (data.photo) {
+          photoImg.src = data.photo;
+          photoImg.style.display = "block";
+          noPhotoMsg.style.display = "none";
+        } else {
+          photoImg.style.display = "none";
+          noPhotoMsg.style.display = "block";
+        }
+
+        document.getElementById("btn-call-support").href = "tel:" + (data.support_phone || "");
+        document.getElementById("btn-call-emergency").href = "tel:" + (data.emergency_phone || "");
+        document.getElementById("btn-call-hotel").href = "tel:" + (data.hotel_phone || "");
+
+        const linksContainer = document.getElementById("display-links");
+        linksContainer.innerHTML = "";
+        if (data.link1_title && data.link1_url) {
+          linksContainer.innerHTML += `<li class="link-item"><a href="${data.link1_url}" target="_blank">${data.link1_title} <span>➔</span></a></li>`;
+        }
+        if (data.link2_title && data.link2_url) {
+          linksContainer.innerHTML += `<li class="link-item"><a href="${data.link2_url}" target="_blank">${data.link2_title} <span>➔</span></a></li>`;
+        }
+        if (!data.link1_title && !data.link2_title) {
+          linksContainer.innerHTML = `<li style="font-size: 0.85rem; color: var(--text-muted);">No extra links right now. Relax! ☕</li>`;
+        }
+      }
+    }
+
+    function openLightbox() {
+      const img = document.getElementById("display-photo");
+      if (!img.src) return;
+      document.getElementById("lightbox-img").src = img.src;
+      document.getElementById("lightbox").classList.add("active");
+    }
+    function closeLightbox() {
+      document.getElementById("lightbox").classList.remove("active");
+    }
+
+    fetchPassengerData();
+    setInterval(fetchPassengerData, 5000);
+  </script>
+</body>
+</html>

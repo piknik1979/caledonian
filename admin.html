@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Admin Dashboard - Fun Edition</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; }
+    .container { max-width: 500px; margin: 0 auto; background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    h2 { color: var(--primary); margin-bottom: 16px; font-size: 1.2rem; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    input, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+    .btn { display: block; width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; font-size: 1rem; margin-top: 20px; }
+    .btn-success { background: var(--success); }
+    .msg { background: #d1fae5; color: #065f46; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-weight: 600; text-align: center; display: none; }
+    .error-msg { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-weight: 600; text-align: center; display: none; }
+    hr { margin: 20px 0; border: none; border-top: 1px solid var(--border); }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <h2>😎 Captain's Control Panel</h2>
+    <div class="msg" id="save-msg">Vibe & Map updated successfully! 🚀</div>
+    <div class="error-msg" id="error-msg">Error! Check console.</div>
+
+    <div class="form-group">
+      <label>Driver Name</label>
+      <input type="text" id="edit-driver" placeholder="e.g. John (The Legend)">
+    </div>
+
+    <div class="form-group">
+      <label>Coach Plate / ID</label>
+      <input type="text" id="edit-coach" placeholder="BUS-01">
+    </div>
+
+    <div class="form-group">
+      <label>📢 Captain's Motto / Vibe of the Day</label>
+      <input type="text" id="edit-motto" placeholder="e.g. Keep calm and trust the driver!">
+    </div>
+
+    <div class="form-group">
+      <label>🚨 Urgent Announcement Bar (Top Alert)</label>
+      <input type="text" id="edit-alert" placeholder="Leave empty to hide">
+    </div>
+
+    <hr>
+    <h3>🎯 Today's Mission & Location</h3>
+
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Today's Destination</label>
+      <input type="text" id="edit-destination" placeholder="London & Windsor">
+    </div>
+
+    <div class="form-group">
+      <label>⏰ Departure Time (Don't be late!)</label>
+      <input type="text" id="edit-departure" placeholder="09:00 AM sharp">
+    </div>
+
+    <div class="form-group">
+      <label>📍 Pick-up / Meeting Point Name (Optional)</label>
+      <input type="text" id="edit-pickup" placeholder="e.g. Windsor Castle Coach Park Bay 4">
+    </div>
+
+    <div class="form-group">
+      <label>🗺️ Google Maps Link for Pick-up Point (Optional)</label>
+      <input type="url" id="edit-pickup-map" placeholder="https://maps.app.goo.gl/...">
+    </div>
+
+    <div class="form-group">
+      <label>☕ Breakfast / Notes & Warnings</label>
+      <textarea id="edit-notes" rows="2" placeholder="Breakfast at 7:30 AM. Watch out for rain!"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>📸 Itinerary Photo (Snap the schedule)</label>
+      <input type="file" id="edit-photo-input" accept="image/*">
+    </div>
+
+    <hr>
+    <h3>📞 Useful Numbers</h3>
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Customer Support Tel</label>
+      <input type="tel" id="edit-support">
+    </div>
+    <div class="form-group">
+      <label>24/7 Emergency Tel</label>
+      <input type="tel" id="edit-emergency">
+    </div>
+    <div class="form-group">
+      <label>Hotel Reception Tel</label>
+      <input type="tel" id="edit-hotel">
+    </div>
+
+    <hr>
+    <h3>🔗 Quick Links</h3>
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Link 1 (Title & URL)</label>
+      <input type="text" id="edit-link1-title" placeholder="Pub Recommendations" style="margin-bottom: 5px;">
+      <input type="url" id="edit-link1-url" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>Link 2 (Title & URL)</label>
+      <input type="text" id="edit-link2-title" placeholder="City Map Guide" style="margin-bottom: 5px;">
+      <input type="url" id="edit-link2-url" placeholder="https://...">
+    </div>
+
+    <button class="btn btn-success" onclick="saveDataToCloud()">Save & Broadcast Vibe 🚀</button>
+  </div>
+
+  <script>
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentPhotoBase64 = "";
+
+    async function loadAdminData() {
+      const { data, error } = await client
+        .from('tour_settings')
+        .select('*')
+        .eq('id', 1)
+        .maybeSingle();
+
+      if (error) { console.error("Load error:", error); return; }
+
+      if (data) {
+        document.getElementById("edit-driver").value = data.driver || "";
+        document.getElementById("edit-coach").value = data.coach || "";
+        document.getElementById("edit-motto").value = data.motto || "";
+        document.getElementById("edit-alert").value = data.alert || "";
+        document.getElementById("edit-destination").value = data.destination || "";
+        document.getElementById("edit-departure").value = data.departure || "";
+        document.getElementById("edit-pickup").value = data.pickup_location || "";
+        document.getElementById("edit-pickup-map").value = data.pickup_map_url || "";
+        document.getElementById("edit-notes").value = data.notes || "";
+        document.getElementById("edit-support").value = data.support_phone || "";
+        document.getElementById("edit-emergency").value = data.emergency_phone || "";
+        document.getElementById("edit-hotel").value = data.hotel_phone || "";
+        document.getElementById("edit-link1-title").value = data.link1_title || "";
+        document.getElementById("edit-link1-url").value = data.link1_url || "";
+        document.getElementById("edit-link2-title").value = data.link2_title || "";
+        document.getElementById("edit-link2-url").value = data.link2_url || "";
+        currentPhotoBase64 = data.photo || "";
+      }
+    }
+
+    async function saveDataToCloud() {
+      const photoInput = document.getElementById("edit-photo-input");
+
+      const performUpsert = async (photoData) => {
+        const payload = {
+          id: 1,
+          driver: document.getElementById("edit-driver").value,
+          coach: document.getElementById("edit-coach").value,
+          motto: document.getElementById("edit-motto").value,
+          alert: document.getElementById("edit-alert").value,
+          destination: document.getElementById("edit-destination").value,
+          departure: document.getElementById("edit-departure").value,
+          pickup_location: document.getElementById("edit-pickup").value,
+          pickup_map_url: document.getElementById("edit-pickup-map").value,
+          notes: document.getElementById("edit-notes").value,
+          photo: photoData,
+          support_phone: document.getElementById("edit-support").value,
+          emergency_phone: document.getElementById("edit-emergency").value,
+          hotel_phone: document.getElementById("edit-hotel").value,
+          link1_title: document.getElementById("edit-link1-title").value,
+          link1_url: document.getElementById("edit-link1-url").value,
+          link2_title: document.getElementById("edit-link2-title").value,
+          link2_url: document.getElementById("edit-link2-url").value
+        };
+
+        const { error } = await client.from('tour_settings').upsert(payload);
+
+        if (error) {
+          console.error("Save error:", error);
+          const errBox = document.getElementById("error-msg");
+          errBox.textContent = "Error: " + error.message;
+          errBox.style.display = "block";
+          setTimeout(() => { errBox.style.display = "none"; }, 5000);
+        } else {
+          const msg = document.getElementById("save-msg");
+          msg.style.display = "block";
+          setTimeout(() => { msg.style.display = "none"; }, 3000);
+        }
+      };
+
+      if (photoInput.files && photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) { performUpsert(e.target.result); };
+        reader.readAsDataURL(photoInput.files[0]);
+      } else {
+        performUpsert(currentPhotoBase64);
+      }
+    }
+
+    loadAdminData();
+  </script>
+</body>
+</html>

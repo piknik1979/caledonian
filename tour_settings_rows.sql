@@ -1,0 +1,1 @@
+INSERT INTO public.tour_settings (id, driver, coach, alert, destination, departure, notes, photo, support_phone, emergency_phone, hotel_phone, link1_title, link1_url, link2_title, link2_url) VALUES (1, null, 'BUS-01', null, 'London & Windsor', '09:00 AM', null, null, null, null, null, null, null, null, null);
